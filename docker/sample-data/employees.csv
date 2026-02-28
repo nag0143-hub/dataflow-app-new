@@ -1,0 +1,9 @@
+employee_id,first_name,last_name,email,department,hire_date,salary,ssn,phone
+1,John,Smith,john.smith@example.com,Engineering,2020-01-15,95000.00,123-45-6789,612-555-0101
+2,Jane,Doe,jane.doe@example.com,Engineering,2019-06-01,105000.00,234-56-7890,612-555-0102
+3,Bob,Johnson,bob.j@example.com,Sales,2021-03-20,72000.00,345-67-8901,312-555-0103
+4,Alice,Williams,alice.w@example.com,HR,2018-11-10,68000.00,456-78-9012,612-555-0104
+5,Charlie,Brown,charlie.b@example.com,Finance,2022-07-05,88000.00,567-89-0123,212-555-0105
+6,Diana,Prince,diana.p@example.com,Engineering,2020-09-14,115000.00,678-90-1234,612-555-0106
+7,Eric,Taylor,eric.t@example.com,Operations,2021-01-22,62000.00,789-01-2345,214-555-0107
+8,Fiona,Garcia,fiona.g@example.com,Sales,2019-04-30,78000.00,890-12-3456,312-555-0108

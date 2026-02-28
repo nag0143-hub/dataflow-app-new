@@ -177,15 +177,31 @@ Runs on `http://0.0.0.0:5000`
 
 ### Docker (AKS / Local PC)
 - `Dockerfile` — multi-stage build (node:20-alpine), healthcheck on `/api/health`
-- `docker-compose.yml` — app + PostgreSQL, reads `.env` file, healthcheck-gated startup
+- `docker-compose.yml` — full testing stack with 16 services (app, databases, Airflow, Spark, storage emulators)
 - `.env.example` — full list of all env vars with defaults and documentation
 - `.dockerignore` — excludes node_modules, .git, .replit, etc.
+- `docker/README.md` — full testing environment reference with ports, credentials, sample data, and testing scenarios
 
 ```bash
-cp .env.example .env   # Edit values for your environment
-docker compose up -d   # Start app + database
+cp .env.example .env            # Edit values for your environment
+docker compose up -d            # Start all services (full stack)
+docker compose up -d db redis app  # Start minimal (app only)
 ```
 
+**Docker Testing Services** (see `docker/README.md` for full details):
+| Service | Port | Purpose |
+|---------|------|---------|
+| PostgreSQL (source) | 5433 | Test RDBMS source (hr.employees, sales.orders) |
+| SQL Server | 1433 | Test RDBMS source (hr.employees, finance.transactions) |
+| MySQL | 3306 | Test RDBMS source (customers, invoices) |
+| MongoDB | 27017 | Test NoSQL source (events, sensor_readings) |
+| Spark (master + worker) | 8081/7077 | Local Spark cluster for PySpark scripts |
+| Airflow (webserver + scheduler) | 8080 | Local Airflow with dag-factory pre-installed |
+| SFTP | 2222 | Flat file source testing |
+| MinIO (S3) | 9000/9001 | S3-compatible object storage |
+| Azurite | 10000-10002 | Azure Blob Storage emulator |
+
+Sample data: `docker/init-scripts/` (DB seeds) + `docker/sample-data/` (CSV/fixed-width flat files).
 All config is env-var driven — no hardcoded URLs, ports, or credentials.
 
 ## Production Readiness

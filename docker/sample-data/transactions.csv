@@ -1,0 +1,8 @@
+transaction_id,account_number,transaction_date,amount,transaction_type,description,category,merchant
+1,ACCT-001,2026-02-01 09:30:00,1500.00,debit,Office supplies purchase,operations,Office Depot
+2,ACCT-001,2026-02-02 14:15:00,25000.00,credit,Client payment received,revenue,Contoso Ltd
+3,ACCT-002,2026-02-03 10:00:00,4200.00,debit,Cloud infrastructure,technology,Azure
+4,ACCT-001,2026-02-05 16:45:00,850.00,debit,Travel expenses,travel,Delta Airlines
+5,ACCT-003,2026-02-10 11:30:00,12000.00,debit,Software licenses,technology,Microsoft
+6,ACCT-002,2026-02-12 09:00:00,18500.00,credit,Service fee payment,revenue,Northwind
+7,ACCT-001,2026-02-15 13:20:00,3200.00,debit,Equipment lease,operations,TechLease Co
