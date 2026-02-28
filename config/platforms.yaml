@@ -1,0 +1,25 @@
+# =============================================================================
+# Supported Platforms / Connection Types
+# =============================================================================
+# Each platform has a label, category, and optional metadata.
+# category determines behavior: database | cloud | file | orchestration
+# Platforms with category "file" are treated as flat-file sources
+# (wildcard patterns, schema import, file sensors, etc.)
+#
+# Sourced automatically by dataflow-config.js
+# =============================================================================
+
+sql_server:            { label: "SQL Server",              category: database }
+oracle:                { label: "Oracle",                  category: database }
+postgresql:            { label: "PostgreSQL",              category: database }
+mysql:                 { label: "MySQL",                   category: database }
+mongodb:               { label: "MongoDB",                 category: database }
+adls2:                 { label: "Azure ADLS Gen2",         category: cloud }
+s3:                    { label: "AWS S3",                   category: cloud }
+flat_file_delimited:   { label: "Flat File (Delimited)",   category: file }
+flat_file_fixed_width: { label: "Flat File (Fixed Width)", category: file }
+cobol_ebcdic:          { label: "COBOL / EBCDIC",         category: file }
+sftp:                  { label: "SFTP",                    category: file }
+nas:                   { label: "NAS / Network Share",     category: file }
+local_fs:              { label: "Local Filesystem",        category: file }
+airflow:               { label: "Apache Airflow",          category: orchestration }

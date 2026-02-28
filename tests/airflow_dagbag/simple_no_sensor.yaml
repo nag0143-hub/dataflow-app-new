@@ -1,0 +1,34 @@
+dataflow__manual_load:
+  default_args:
+    owner: data-eng
+    email_on_failure: false
+    retries: 0
+    retry_delay_sec: 30
+    start_date: "2025-01-01"
+  schedule: "@once"
+  catchup: false
+  description: "DataFlow pipeline: manual_load — triggered manually"
+  is_paused_upon_creation: true
+  tags:
+    - dataflow
+    - manual
+
+  tasks:
+    extract_public__accounts:
+      operator: airflow.providers.apache.spark.operators.spark_submit.SparkSubmitOperator
+      application: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_spark.py
+      application_args:
+        - "--source_platform"
+        - "postgres"
+        - "--target_platform"
+        - "snowflake"
+        - "--schema"
+        - "public"
+        - "--table"
+        - "accounts"
+        - "--load_method"
+        - "full_refresh"
+      conf:
+        spark.executor.memory: "4g"
+        spark.executor.cores: "2"
+        spark.driver.memory: "2g"

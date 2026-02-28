@@ -1,0 +1,59 @@
+{
+  "pipeline": "csv_to_adls",
+  "dataset": "staging__transactions",
+  "generated": "2024-06-01T00:00:00.000Z",
+  "columns": [
+    {
+      "source_column": "txn_id",
+      "target_column": "transaction_id",
+      "transformation": "direct",
+      "source_data_type": "string",
+      "target_data_type": "string"
+    },
+    {
+      "source_column": "txn_date",
+      "target_column": "transaction_date",
+      "transformation": "date_iso",
+      "source_data_type": "string",
+      "target_data_type": "date"
+    },
+    {
+      "source_column": "amount",
+      "target_column": "amount",
+      "transformation": "direct",
+      "source_data_type": "decimal",
+      "target_data_type": "decimal",
+      "dq_rules": [
+        {"rule_type": "not_null"},
+        {"rule_type": "range", "min": 0, "max": 999999}
+      ]
+    },
+    {
+      "source_column": "customer_email",
+      "target_column": "customer_email",
+      "transformation": "lowercase",
+      "source_data_type": "string",
+      "target_data_type": "string",
+      "masking": {
+        "type": "hash"
+      }
+    }
+  ],
+  "cleansing": {
+    "rules": [
+      {"column": "customer_email", "transform": "trim"},
+      {"column": "customer_email", "transform": "lowercase"}
+    ]
+  },
+  "data_quality": {
+    "rules": [
+      {"column": "transaction_id", "check": "not_null"},
+      {"column": "amount", "check": "range", "min": 0, "max": 999999}
+    ]
+  },
+  "masking": {
+    "rules": [
+      {"column": "customer_email", "type": "hash"}
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+dataflow__csv_to_adls:
+  default_args:
+    owner: data-eng
+    email_on_failure: false
+    email_on_retry: false
+    retries: 1
+    retry_delay_sec: 30
+    start_date: "2024-06-01"
+    depends_on_past: false
+    wait_for_downstream: false
+  schedule: "@hourly"
+  catchup: false
+  description: "DataFlow pipeline: csv_to_adls"
+  is_paused_upon_creation: true
+  tags:
+    - dataflow
+    - csv
+
+  tasks:
+    wait_for_source_file:
+      operator: airflow.providers.standard.sensors.python.PythonSensor
+      python_callable_name: adls_file_exists
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      poke_interval: 120
+      timeout: 7200
+      soft_fail: false
+      mode: reschedule
+
+    ingest_staging__transactions:
+      operator: airflow.providers.standard.operators.python.PythonOperator
+      python_callable_name: ingest_function
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      op_args:
+        - "/data/inbound/*.csv"
+        - "staging__transactions"
+        - "append"
+        - ""
+      dependencies:
+        - wait_for_source_file
+
+    transform_staging__transactions:
+      operator: airflow.providers.apache.spark.operators.spark_submit.SparkSubmitOperator
+      application: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_spark.py
+      application_args:
+        - "--schema"
+        - "staging"
+        - "--table"
+        - "transactions"
+        - "--load_method"
+        - "append"
+        - "--mapping_file"
+        - "/home/runner/workspace/tests/airflow_dagbag/stubs/mappings/csv_to_adls_staging__transactions_mapping.json"
+      conf:
+        spark.executor.memory: "4g"
+        spark.executor.cores: "2"
+        spark.driver.memory: "2g"
+      dependencies:
+        - ingest_staging__transactions

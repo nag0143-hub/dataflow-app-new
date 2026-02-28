@@ -1,0 +1,10 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "apache-airflow==3.0.1",
+    "apache-airflow-providers-apache-spark>=5.5.0",
+    "dag-factory>=1.0.1",
+]

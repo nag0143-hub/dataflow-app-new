@@ -1,0 +1,87 @@
+{
+  "pipeline": "advanced_pipeline",
+  "dataset": "hr__employees",
+  "generated": "2024-06-01T00:00:00.000Z",
+  "columns": [
+    {
+      "source_column": "emp_id",
+      "target_column": "employee_id",
+      "transformation": "direct",
+      "source_data_type": "integer",
+      "target_data_type": "integer",
+      "dq_rules": [
+        {"rule_type": "not_null"},
+        {"rule_type": "unique"}
+      ]
+    },
+    {
+      "source_column": "first_name",
+      "target_column": "first_name",
+      "transformation": "trim",
+      "source_data_type": "string",
+      "target_data_type": "string"
+    },
+    {
+      "source_column": "last_name",
+      "target_column": "last_name",
+      "transformation": "trim",
+      "source_data_type": "string",
+      "target_data_type": "string"
+    },
+    {
+      "source_column": "ssn",
+      "target_column": "ssn",
+      "transformation": "direct",
+      "source_data_type": "string",
+      "target_data_type": "string",
+      "masking": {
+        "type": "hash"
+      }
+    },
+    {
+      "source_column": "salary",
+      "target_column": "salary",
+      "transformation": "direct",
+      "source_data_type": "decimal",
+      "target_data_type": "decimal",
+      "masking": {
+        "type": "redact"
+      },
+      "dq_rules": [
+        {"rule_type": "not_null"},
+        {"rule_type": "range", "min": 0, "max": 10000000}
+      ]
+    },
+    {
+      "source_column": "hire_date",
+      "target_column": "hire_date",
+      "transformation": "date_iso",
+      "source_data_type": "string",
+      "target_data_type": "date"
+    }
+  ],
+  "cleansing": {
+    "rules": [
+      {"column": "first_name", "transform": "trim"},
+      {"column": "last_name", "transform": "trim"},
+      {"column": "first_name", "transform": "uppercase"},
+      {"column": "last_name", "transform": "uppercase"}
+    ]
+  },
+  "data_quality": {
+    "rules": [
+      {"column": "employee_id", "check": "not_null"},
+      {"column": "employee_id", "check": "unique"},
+      {"column": "salary", "check": "range", "min": 0, "max": 10000000},
+      {"column": "first_name", "check": "not_null"},
+      {"column": "last_name", "check": "not_null"}
+    ]
+  },
+  "masking": {
+    "rules": [
+      {"column": "ssn", "type": "hash"},
+      {"column": "salary", "type": "redact"}
+    ]
+  },
+  "quarantine_path": "/data/quarantine/hr/employees"
+}

@@ -1,0 +1,58 @@
+modules = ["nodejs-20", "web", "python-3.11"]
+[agent]
+expertMode = true
+integrations = ["github:1.0.0"]
+
+[nix]
+channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+publicDir = "dist"
+run = ["node", "server/production.js"]
+
+[userenv]
+
+[userenv.shared]
+LDAP_URI = "ldaps://prod-ldapad-int2.us.bank-dns.com:636"
+LDAP_BASEDN = "DC=us,DC=bank-dns,DC=com"
+LDAP_ROLES_MAPPING_DEV = "CN=APP_8118_bdponboardingapp_User_PROD,OU=APPS,DC=us,DC=bank-dns,DC=com"
+LDAP_ROLES_MAPPING_ADMIN = "CN=AzBDPAppidDEV,OU=APPIDS,DC=us,DC=bank-dns,DC=com"
+LDAP_DOMAIN = "us.bank-dns.com"
+LDAP_TLS_REJECT_UNAUTHORIZED = "false"
+
+[userenv.development]
+LDAP_DEMO_MODE = "true"

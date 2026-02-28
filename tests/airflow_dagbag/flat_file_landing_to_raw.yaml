@@ -1,0 +1,53 @@
+dataflow__sales_ingest:
+  default_args:
+    owner: data-eng
+    email:
+      - alerts@example.com
+    email_on_failure: true
+    email_on_retry: false
+    retries: 2
+    retry_delay_sec: 60
+    start_date: "2024-01-01"
+    depends_on_past: false
+    wait_for_downstream: false
+  schedule: "@daily"
+  catchup: false
+  description: "DataFlow pipeline: sales_ingest"
+  is_paused_upon_creation: true
+  tags:
+    - dataflow
+    - sales
+
+  tasks:
+    wait_for_source_file:
+      operator: airflow.providers.standard.sensors.python.PythonSensor
+      python_callable_name: adls_file_exists
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      poke_interval: 60
+      timeout: 36000
+      soft_fail: false
+      mode: reschedule
+
+    ingest_raw__customers:
+      operator: airflow.providers.standard.operators.python.PythonOperator
+      python_callable_name: ingest_function
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      op_args:
+        - "/data/inbound/sales/*.csv"
+        - "raw__customers"
+        - "append"
+        - "/raw/sales/"
+      dependencies:
+        - wait_for_source_file
+
+    ingest_raw__orders:
+      operator: airflow.providers.standard.operators.python.PythonOperator
+      python_callable_name: ingest_function
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      op_args:
+        - "/data/inbound/sales/*.csv"
+        - "raw__orders"
+        - "append"
+        - "/raw/sales/"
+      dependencies:
+        - wait_for_source_file

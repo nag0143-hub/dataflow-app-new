@@ -1,0 +1,81 @@
+dataflow__oracle_to_snowflake:
+  default_args:
+    owner: data-eng
+    email:
+      - datalake-alerts@company.com
+    email_on_failure: true
+    email_on_retry: false
+    retries: 3
+    retry_delay_sec: 120
+    start_date: "2024-01-01"
+    depends_on_past: false
+    wait_for_downstream: false
+    retry_exponential_backoff: true
+  schedule: "0 6 * * *"
+  catchup: false
+  description: "DataFlow pipeline: oracle_to_snowflake"
+  is_paused_upon_creation: true
+  tags:
+    - dataflow
+    - oracle
+    - snowflake
+
+  tasks:
+    extract_finance__gl_journal:
+      operator: airflow.providers.apache.spark.operators.spark_submit.SparkSubmitOperator
+      application: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_spark.py
+      application_args:
+        - "--source_platform"
+        - "oracle"
+        - "--target_platform"
+        - "snowflake"
+        - "--schema"
+        - "finance"
+        - "--table"
+        - "gl_journal"
+        - "--load_method"
+        - "incremental"
+        - "--incremental_column"
+        - "last_update_date"
+      conf:
+        spark.executor.memory: "4g"
+        spark.executor.cores: "2"
+        spark.driver.memory: "2g"
+
+    extract_finance__ap_invoices:
+      operator: airflow.providers.apache.spark.operators.spark_submit.SparkSubmitOperator
+      application: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_spark.py
+      application_args:
+        - "--source_platform"
+        - "oracle"
+        - "--target_platform"
+        - "snowflake"
+        - "--schema"
+        - "finance"
+        - "--table"
+        - "ap_invoices"
+        - "--load_method"
+        - "full_refresh"
+      conf:
+        spark.executor.memory: "4g"
+        spark.executor.cores: "2"
+        spark.driver.memory: "2g"
+
+    extract_hr__employees:
+      operator: airflow.providers.apache.spark.operators.spark_submit.SparkSubmitOperator
+      application: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_spark.py
+      application_args:
+        - "--source_platform"
+        - "oracle"
+        - "--target_platform"
+        - "snowflake"
+        - "--schema"
+        - "hr"
+        - "--table"
+        - "employees"
+        - "--load_method"
+        - "append"
+      conf:
+        spark.executor.memory: "4g"
+        spark.executor.cores: "2"
+        spark.driver.memory: "2g"

@@ -1,0 +1,209 @@
+# =============================================================================
+# DataFlow Platform — Master Configuration
+# =============================================================================
+# This is the entry point. Sub-configs are loaded from config/ directory:
+#   config/pipeline-wizard.yaml   — wizard steps, transforms, DQ, masking
+#   config/platforms.yaml         — supported connection platforms
+#
+# Environment-specific overrides are in the `environments` section below.
+# Active environment is set via NODE_ENV or DATAFLOW_ENV env var.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Application
+# -----------------------------------------------------------------------------
+app:
+  name: DataFlow
+  tagline: Data Connector Platform
+  version: "1.0.0"
+
+# -----------------------------------------------------------------------------
+# Server
+# -----------------------------------------------------------------------------
+server:
+  port: 5000
+  host: "0.0.0.0"
+  cors_origin: "*"
+  body_limit: "10mb"
+  rate_limit:
+    window_ms: 900000
+    max_requests: 1000
+    write_max: 200
+
+# -----------------------------------------------------------------------------
+# Database
+# -----------------------------------------------------------------------------
+database:
+  connection_string: "${DATABASE_URL}"
+  ssl: false
+  ssl_reject_unauthorized: true
+  pool_min: 2
+  pool_max: 10
+  idle_timeout_ms: 30000
+  connection_timeout_ms: 5000
+
+# -----------------------------------------------------------------------------
+# Redis
+# -----------------------------------------------------------------------------
+redis:
+  url: "${REDIS_URL}"
+  prefix: "dataflow:"
+
+# -----------------------------------------------------------------------------
+# LDAP Authentication
+# -----------------------------------------------------------------------------
+ldap:
+  enabled: true
+  demo_mode: true
+  uri: "${LDAP_URI}"
+  base_dn: "${LDAP_BASEDN}"
+  domain: "${LDAP_DOMAIN}"
+  tls_reject_unauthorized: false
+  session_ttl_hours: 8
+  roles_mapping:
+    admin: "${LDAP_ROLES_MAPPING_ADMIN}"
+    developer: "${LDAP_ROLES_MAPPING_DEV}"
+    default: viewer
+
+# -----------------------------------------------------------------------------
+# HashiCorp Vault
+# -----------------------------------------------------------------------------
+vault:
+  enabled: true
+  address: "${VAULT_ADDR}"
+  namespace: "${VAULT_NAMESPACE}"
+  default_mount: secret
+  timeout_ms: 10000
+  auth_method: approle
+
+# -----------------------------------------------------------------------------
+# GitLab Integration (LDAP deploy target)
+# -----------------------------------------------------------------------------
+gitlab:
+  enabled: true
+  url: "${GITLAB_URL}"
+  project: "${GITLAB_PROJECT}"
+  default_branch: main
+  commit_author: DataFlow Platform
+
+# -----------------------------------------------------------------------------
+# Airflow Integration
+# -----------------------------------------------------------------------------
+airflow:
+  enabled: true
+  dags_folder: /opt/airflow/dags
+  api_timeout_ms: 15000
+  status_sync:
+    enabled: true
+    interval_ms: 120000
+  dag_callable_base_path: /data/dags/
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+logging:
+  level: info
+  log_requests: false
+
+# -----------------------------------------------------------------------------
+# Navigation — Sidebar & Page Visibility
+# enabled: show/hide the page entirely
+# coming_soon: show as dimmed with "Soon" badge (non-clickable)
+# -----------------------------------------------------------------------------
+navigation:
+  main:
+    dashboard:        { enabled: true, coming_soon: false }
+    connections:      { enabled: true, coming_soon: false }
+    pipelines:        { enabled: true, coming_soon: false }
+    data_catalog:     { enabled: true, coming_soon: false }
+    user_guide:       { enabled: true, coming_soon: false }
+  admin:
+    data_model:       { enabled: true, coming_soon: false }
+    audit_trail:      { enabled: true, coming_soon: false }
+    activity_logs:    { enabled: true, coming_soon: false }
+    airflow:          { enabled: true, coming_soon: false }
+    airflow_console:  { enabled: true, coming_soon: false }
+    custom_functions: { enabled: true, coming_soon: false }  # "Function Library" page
+
+# -----------------------------------------------------------------------------
+# Feature Toggles — Platform Capabilities
+# -----------------------------------------------------------------------------
+features:
+  vault_credentials:          { enabled: true, coming_soon: false }
+  gitlab_deploy:              { enabled: true, coming_soon: false }
+  orchestration_panel:        { enabled: true, coming_soon: false }
+  pipeline_list_view:         { enabled: true, coming_soon: false }
+  schema_introspection:       { enabled: true, coming_soon: false }
+  connection_testing:         { enabled: true, coming_soon: false }
+  dag_checkin:                { enabled: true, coming_soon: false }
+  spec_validation:            { enabled: true, coming_soon: false }
+  airflow_status_sync:        { enabled: true, coming_soon: false }
+
+# =============================================================================
+# Environment Overrides
+# Only specify values that DIFFER from the defaults above.
+# =============================================================================
+environments:
+
+  development:
+    server:
+      port: 5000
+    database:
+      pool_min: 2
+      pool_max: 10
+    ldap:
+      demo_mode: true
+    logging:
+      level: debug
+      log_requests: true
+
+  it:
+    database:
+      ssl: true
+      pool_min: 3
+      pool_max: 15
+    ldap:
+      demo_mode: false
+      uri: "ldaps://ldap-it.us.bank-dns.com:636"
+      base_dn: "DC=us,DC=bank-dns,DC=com"
+      domain: "us.bank-dns.com"
+    logging:
+      level: info
+
+  uat:
+    database:
+      ssl: true
+      pool_min: 5
+      pool_max: 20
+    ldap:
+      demo_mode: false
+      uri: "ldaps://ldap-uat.us.bank-dns.com:636"
+      base_dn: "DC=us,DC=bank-dns,DC=com"
+      domain: "us.bank-dns.com"
+    logging:
+      level: info
+
+  production:
+    server:
+      rate_limit:
+        max_requests: 500
+        write_max: 100
+    database:
+      ssl: true
+      ssl_reject_unauthorized: true
+      pool_min: 10
+      pool_max: 30
+      idle_timeout_ms: 10000
+    ldap:
+      demo_mode: false
+      uri: "ldaps://prod-ldapad-int2.us.bank-dns.com:636"
+      base_dn: "DC=us,DC=bank-dns,DC=com"
+      domain: "us.bank-dns.com"
+      tls_reject_unauthorized: false
+    vault:
+      address: "https://vault.us.bank-dns.com"
+    gitlab:
+      url: "https://gitlab.us.bank-dns.com"
+    logging:
+      level: warn
+      log_requests: false

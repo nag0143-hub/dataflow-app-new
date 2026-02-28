@@ -1,0 +1,65 @@
+dataflow__advanced_pipeline:
+  default_args:
+    owner: data-eng
+    email:
+      - data-alerts@company.com
+    email_on_failure: true
+    email_on_retry: false
+    retries: 2
+    retry_delay_sec: 90
+    start_date: "2024-06-01"
+    depends_on_past: false
+    wait_for_downstream: false
+  schedule: "0 8 * * *"
+  catchup: false
+  description: "DataFlow pipeline: advanced_pipeline — with column mapping, DQ, cleansing, masking"
+  is_paused_upon_creation: true
+  tags:
+    - dataflow
+    - advanced
+    - oracle
+
+  tasks:
+    wait_for_source_file:
+      operator: airflow.providers.standard.sensors.python.PythonSensor
+      python_callable_name: local_file_exists
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      poke_interval: 120
+      timeout: 7200
+      soft_fail: false
+      mode: reschedule
+
+    extract_hr__employees:
+      operator: airflow.providers.apache.spark.operators.spark_submit.SparkSubmitOperator
+      application: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_spark.py
+      application_args:
+        - "--source_platform"
+        - "oracle"
+        - "--target_platform"
+        - "local_fs"
+        - "--schema"
+        - "hr"
+        - "--table"
+        - "employees"
+        - "--load_method"
+        - "overwrite"
+        - "--mapping_file"
+        - "/home/runner/workspace/tests/airflow_dagbag/stubs/mappings/advanced_pipeline_hr__employees_mapping.json"
+      conf:
+        spark.executor.memory: "4g"
+        spark.executor.cores: "2"
+        spark.driver.memory: "2g"
+      dependencies:
+        - wait_for_source_file
+
+    ingest_landing__raw_feed:
+      operator: airflow.providers.standard.operators.python.PythonOperator
+      python_callable_name: ingest_function
+      python_callable_file: /home/runner/workspace/tests/airflow_dagbag/stubs/pipeline_tasks.py
+      op_args:
+        - "/data/inbound/hr/*.csv"
+        - "landing__raw_feed"
+        - "append"
+        - "/data/raw/hr/"
+      dependencies:
+        - wait_for_source_file

@@ -1,0 +1,283 @@
+# =============================================================================
+# Pipeline Wizard Configuration
+# =============================================================================
+# Wizard steps, advanced features, schedule presets, load methods,
+# transformations, DQ rules, masking, and data type definitions.
+# Sourced automatically by dataflow-config.js
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Wizard Steps
+# -----------------------------------------------------------------------------
+steps:
+  basics:    { enabled: true, label: "Basics" }
+  datasets:  { enabled: true, label: "Datasets" }
+  schedule:  { enabled: true, label: "Schedule" }
+  advanced:  { enabled: true, label: "Advanced" }
+  review:    { enabled: true, label: "Review" }
+  deploy:    { enabled: true, label: "Deploy" }
+
+# -----------------------------------------------------------------------------
+# Advanced Tab Features — each can be toggled independently
+# -----------------------------------------------------------------------------
+advanced_features:
+  column_mapping:
+    enabled: true
+    always_on: true
+    label: "Column Mapping & Transformations"
+    description: "Rename, cast, reorder, and apply expressions to columns"
+  data_cleansing:
+    enabled: true
+    always_on: false
+    label: "Data Cleansing"
+    description: "Trim, normalize, deduplicate, and clean data"
+  data_quality:
+    enabled: true
+    always_on: false
+    label: "Data Quality Rules"
+    description: "Null checks, uniqueness, range validation, row-count thresholds"
+  security:
+    enabled: true
+    always_on: false
+    label: "Security & Masking"
+    description: "Column-level masking, encryption, classification, and access control"
+  sla:
+    enabled: true
+    always_on: false
+    label: "SLA Configuration"
+    description: "Dataset-level SLA targets, breach thresholds, and alerting"
+
+# -----------------------------------------------------------------------------
+# Schedule Presets
+# -----------------------------------------------------------------------------
+schedule_presets:
+  - { value: "manual",    label: "None (Manual)" }
+  - { value: "@hourly",   label: "Hourly" }
+  - { value: "@daily",    label: "Daily" }
+  - { value: "@weekly",   label: "Weekly" }
+  - { value: "monthly",   label: "Monthly" }
+  - { value: "quarterly", label: "Quarterly" }
+  - { value: "custom",    label: "Cron Expression" }
+  - { value: "sensor",    label: "Sensor (Event)" }
+
+# -----------------------------------------------------------------------------
+# Event / Sensor Trigger Options
+# -----------------------------------------------------------------------------
+event_sensor_options:
+  - { value: "file_watcher", label: "File Sensor",       description: "Trigger when a file appears or changes in a path" }
+  - { value: "s3_event",     label: "S3 / ADLS Sensor",  description: "Trigger on object create/update in cloud storage" }
+  - { value: "db_sensor",    label: "SQL Sensor",         description: "Trigger when a SQL query returns true" }
+  - { value: "sftp_sensor",  label: "SFTP Sensor",        description: "Trigger when a file arrives on an SFTP server" }
+  - { value: "api_webhook",  label: "API / Webhook",      description: "Trigger via an inbound HTTP call" }
+  - { value: "upstream_job", label: "External Task",       description: "Wait for another DAG / task to complete" }
+
+# -----------------------------------------------------------------------------
+# Load Methods
+# -----------------------------------------------------------------------------
+load_methods:
+  - { value: "append",    label: "Append",    description: "Add new rows only — never overwrites existing data" }
+  - { value: "replace",   label: "Replace",   description: "Truncate the target table and reload all data fresh" }
+  - { value: "upsert",    label: "Upsert",    description: "Insert new rows, update existing rows based on a key" }
+  - { value: "merge",     label: "Merge",     description: "Advanced merge — handles inserts, updates, and deletes" }
+  - { value: "scd2",      label: "SCD Type 2", description: "Slowly changing dimension — tracks history of changes" }
+
+# -----------------------------------------------------------------------------
+# Delivery Channels
+# -----------------------------------------------------------------------------
+delivery_channels:
+  - { value: "pull", label: "Pull (Extract from Source)" }
+  - { value: "push", label: "Push (Source Pushes to Target)" }
+
+# -----------------------------------------------------------------------------
+# File Input Modes — how flat-file sources specify their input
+# -----------------------------------------------------------------------------
+file_input_modes:
+  - { value: "file_list", label: "File List",        description: "Provide specific file names" }
+  - { value: "folder",    label: "Folder Path",      description: "All files from a directory" }
+  - { value: "wildcard",  label: "Wildcard Pattern",  description: "Match files using glob patterns" }
+
+# -----------------------------------------------------------------------------
+# Schema Import Modes — how schemas can be imported
+# -----------------------------------------------------------------------------
+schema_import_modes:
+  - { value: "csv",  label: "CSV Schema",     description: "CSV header or column definitions" }
+  - { value: "json", label: "JSON Schema",    description: "JSON column definitions" }
+  - { value: "cfd",  label: "CFD / Copybook", description: "COBOL copybook with PIC clauses" }
+
+# =============================================================================
+# Transformations — Column-level transforms in Column Mapper
+# category: core | spark_native | spark_udf | custom
+# =============================================================================
+transformations:
+  # Direct Copy
+  - { value: "direct",            label: "Direct Copy",                      category: "core" }
+  # Spark Native
+  - { value: "uppercase",         label: "upper(col)",                       category: "spark_native" }
+  - { value: "lowercase",         label: "lower(col)",                       category: "spark_native" }
+  - { value: "trim",              label: "trim(col)",                        category: "spark_native" }
+  - { value: "ltrim",             label: "ltrim(col)",                       category: "spark_native" }
+  - { value: "rtrim",             label: "rtrim(col)",                       category: "spark_native" }
+  - { value: "length",            label: "length(col)",                      category: "spark_native" }
+  - { value: "coalesce_empty",    label: "coalesce(col, '')",                category: "spark_native" }
+  - { value: "coalesce_zero",     label: "coalesce(col, 0)",                 category: "spark_native" }
+  - { value: "cast_string",       label: "cast(col as string)",              category: "spark_native" }
+  - { value: "cast_int",          label: "cast(col as int)",                 category: "spark_native" }
+  - { value: "cast_long",         label: "cast(col as bigint)",              category: "spark_native" }
+  - { value: "cast_double",       label: "cast(col as double)",              category: "spark_native" }
+  - { value: "cast_decimal",      label: "cast(col as decimal(18,2))",       category: "spark_native" }
+  - { value: "cast_date",         label: "cast(col as date)",                category: "spark_native" }
+  - { value: "cast_timestamp",    label: "cast(col as timestamp)",           category: "spark_native" }
+  - { value: "date_iso",          label: "to_date(col, 'yyyy-MM-dd')",       category: "spark_native" }
+  - { value: "date_epoch",        label: "unix_timestamp(col)",              category: "spark_native" }
+  - { value: "date_format",       label: "date_format(col, <fmt>)",          category: "spark_native" }
+  - { value: "current_timestamp", label: "current_timestamp()",              category: "spark_native" }
+  - { value: "current_date",      label: "current_date()",                   category: "spark_native" }
+  - { value: "year",              label: "year(col)",                        category: "spark_native" }
+  - { value: "month",             label: "month(col)",                       category: "spark_native" }
+  - { value: "dayofmonth",        label: "dayofmonth(col)",                  category: "spark_native" }
+  - { value: "round_2dp",         label: "round(col, 2)",                    category: "spark_native" }
+  - { value: "round_0dp",         label: "round(col, 0)",                    category: "spark_native" }
+  - { value: "abs",               label: "abs(col)",                         category: "spark_native" }
+  - { value: "ceil",              label: "ceil(col)",                        category: "spark_native" }
+  - { value: "floor",             label: "floor(col)",                       category: "spark_native" }
+  - { value: "bool_yn",           label: "if(col, 'Y', 'N')",               category: "spark_native" }
+  - { value: "bool_10",           label: "if(col, 1, 0)",                    category: "spark_native" }
+  - { value: "null_empty",        label: "nvl(col, '')",                     category: "spark_native" }
+  - { value: "null_zero",         label: "nvl(col, 0)",                      category: "spark_native" }
+  - { value: "concat",            label: "concat(col, ...)",                 category: "spark_native" }
+  - { value: "string_concat",     label: "concat(<prefix>, col, <suffix>)",  category: "spark_native" }
+  - { value: "substring",         label: "substring(col, pos, len)",         category: "spark_native" }
+  - { value: "replace",           label: "replace(col, find, replace)",      category: "spark_native" }
+  - { value: "regex_replace",     label: "regexp_replace(col, pat, repl)",   category: "spark_native" }
+  - { value: "regex_extract",     label: "regexp_extract(col, pat, idx)",    category: "spark_native" }
+  - { value: "split_col",         label: "split(col, delim)",                category: "spark_native" }
+  - { value: "hash_md5",          label: "md5(col)",                         category: "spark_native" }
+  - { value: "hash_sha256",       label: "sha2(col, 256)",                   category: "spark_native" }
+  - { value: "hash_sha512",       label: "sha2(col, 512)",                   category: "spark_native" }
+  - { value: "base64_encode",     label: "base64(col)",                      category: "spark_native" }
+  - { value: "base64_decode",     label: "unbase64(col)",                    category: "spark_native" }
+  - { value: "mask_partial",      label: "mask(col) – partial",              category: "spark_native" }
+  - { value: "mask_full",         label: "mask(col) – full",                 category: "spark_native" }
+  - { value: "custom_sql",        label: "Custom SQL Expression",            category: "spark_native" }
+  # Spark UDF (built-in examples — users add more via Custom Functions)
+  - { value: "udf_standardize_phone", label: "udf_standardize_phone(col)",   category: "spark_udf" }
+  - { value: "udf_mask_pii",          label: "udf_mask_pii(col)",            category: "spark_udf" }
+  - { value: "udf_currency_convert",  label: "udf_currency_convert(col)",    category: "spark_udf" }
+
+# Transformation parameter definitions (only for transforms that need extra inputs)
+transformation_params:
+  date_format:
+    - { key: "format_string", label: "Format", placeholder: "YYYY-MM-DD" }
+  string_concat:
+    - { key: "concat_prefix", label: "Prefix", placeholder: "prefix_" }
+    - { key: "concat_suffix", label: "Suffix", placeholder: "_suffix" }
+  regex_replace:
+    - { key: "regex_pattern", label: "Pattern", placeholder: "\\d+" }
+    - { key: "regex_replacement", label: "Replace with", placeholder: "" }
+  custom_sql:
+    - { key: "expression", label: "SQL Expression", placeholder: "CAST({col} AS VARCHAR)" }
+
+# =============================================================================
+# Global Rules — Auto-apply rules matched by column name/type
+# pattern is a case-insensitive regex matched against column name or type
+# =============================================================================
+global_rules:
+  - { value: "date_standardize",      label: "Date Columns → Standardize (ISO 8601)",  pattern: "date|time|timestamp|created|updated" }
+  - { value: "text_trim",             label: "Text Columns → Trim Whitespace",          pattern: "varchar|text|char|string|name|description|title" }
+  - { value: "number_remove_leading", label: "Number Columns → Remove Leading Zeros",   pattern: "int|decimal|numeric|number|float" }
+  - { value: "phone_format",          label: "Phone Columns → Format",                  pattern: "phone|telephone|mobile" }
+  - { value: "email_lower",           label: "Email Columns → Lowercase",               pattern: "email|mail" }
+
+# =============================================================================
+# Data Quality Rules
+# =============================================================================
+dq_rules:
+  # Column-level DQ rules (used in Column Mapper per-column)
+  column_rules:
+    - { value: "not_null",       label: "Not Null",       hasParam: false }
+    - { value: "unique",         label: "Unique",         hasParam: false }
+    - { value: "range_check",    label: "Range Check",    hasParam: true, paramLabel: "Min,Max",             placeholder: "0,100" }
+    - { value: "pattern_match",  label: "Pattern Match",  hasParam: true, paramLabel: "Regex",               placeholder: "^[A-Z]" }
+    - { value: "length_check",   label: "Max Length",     hasParam: true, paramLabel: "Length",              placeholder: "255" }
+    - { value: "allowed_values", label: "Allowed Values", hasParam: true, paramLabel: "Values (comma-sep)",  placeholder: "A,B,C" }
+
+  # Dataset-level DQ rules (used in Data Quality Rules panel)
+  dataset_rules:
+    - { value: "row_count_min", label: "Min Row Count" }
+    - { value: "row_count_max", label: "Max Row Count" }
+    - { value: "duplicate_key", label: "Duplicate Key Check" }
+    - { value: "freshness",     label: "Data Freshness" }
+    - { value: "referential",   label: "Referential Integrity" }
+    - { value: "completeness",  label: "Completeness Threshold (%)" }
+    - { value: "custom_sql",    label: "Custom SQL Assertion" }
+
+  # Extended column rules for Data Quality Rules panel
+  column_rules_extended:
+    - { value: "not_null",       label: "Not Null" }
+    - { value: "unique",         label: "Unique" }
+    - { value: "min_value",      label: "Min Value" }
+    - { value: "max_value",      label: "Max Value" }
+    - { value: "min_length",     label: "Min Length" }
+    - { value: "max_length",     label: "Max Length" }
+    - { value: "regex",          label: "Regex Pattern" }
+    - { value: "allowed_values", label: "Allowed Values" }
+    - { value: "date_range",     label: "Date Range" }
+    - { value: "custom_sql",     label: "Custom SQL" }
+
+  # Summary DQ rules (used in quick DQ dropdowns)
+  summary_rules:
+    - { value: "not_null",       label: "Not Null" }
+    - { value: "unique",         label: "Unique" }
+    - { value: "range_check",    label: "Range Check" }
+    - { value: "pattern_match",  label: "Pattern Match" }
+    - { value: "length_check",   label: "Length Check" }
+
+  # DQ failure actions
+  actions:
+    - { value: "fail_job",       label: "Fail Job" }
+    - { value: "warn_continue",  label: "Warn & Continue" }
+    - { value: "reject_row",     label: "Reject Row" }
+    - { value: "quarantine",     label: "Quarantine Row" }
+
+# =============================================================================
+# Security & Masking Configuration
+# =============================================================================
+
+# Encryption types for column-level security
+encryption_types:
+  - { value: "aes256",      label: "AES-256" }
+  - { value: "hash_sha256", label: "Hash (SHA-256)" }
+  - { value: "tokenize",    label: "Tokenize" }
+
+# Data masking types
+masking_types:
+  - { value: "full",      label: "Full Mask",       description: "Replace all characters with *" }
+  - { value: "partial",   label: "Partial Mask",    description: "Show first/last N characters" }
+  - { value: "hash",      label: "Hash (SHA-256)",  description: "One-way cryptographic hash" }
+  - { value: "encrypt",   label: "AES Encryption",  description: "Reversible encryption" }
+  - { value: "tokenize",  label: "Tokenization",    description: "Replace with random token" }
+  - { value: "redact",    label: "Redact",          description: "Remove entirely" }
+
+# PII classification types
+pii_types:
+  - ssn
+  - credit_card
+  - email
+  - phone
+  - address
+  - name
+  - dob
+  - ip_address
+  - custom
+
+# =============================================================================
+# Data Types — Available column data types
+# =============================================================================
+data_types:
+  - "varchar(255)"
+  - "int"
+  - "datetime"
+  - "decimal(18,2)"
+  - "bit"
+  - "bigint"
+  - "nvarchar(max)"
