@@ -242,9 +242,11 @@ export default function JobFormDialog({
       <DialogContent
         preventClose={deployStatus === "deploying"}
         className={`overflow-y-auto transition-all duration-300 ${
-          isExpanded || activeTab === "review" || activeTab === "deploy" || activeTab === "advanced"
-            ? 'max-w-6xl max-h-[96vh] w-[95vw] h-[95vh]'
-            : 'max-w-2xl max-h-[92vh] w-auto h-auto'
+          isExpanded
+            ? 'max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] rounded-none'
+            : activeTab === "review" || activeTab === "deploy" || activeTab === "advanced"
+              ? 'max-w-[98vw] max-h-[98vh] w-[98vw] h-[98vh]'
+              : 'max-w-3xl max-h-[92vh] w-auto h-auto'
         }`}
       >
         <DialogHeader className="flex items-center justify-between">
@@ -272,9 +274,11 @@ export default function JobFormDialog({
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className={`overflow-y-auto ${
-              isExpanded || activeTab === "review" || activeTab === "deploy" || activeTab === "advanced"
-                ? 'max-h-[calc(95vh-300px)]'
-                : 'max-h-[calc(92vh-320px)]'
+              isExpanded
+                ? 'max-h-[calc(100vh-220px)]'
+                : activeTab === "review" || activeTab === "deploy" || activeTab === "advanced"
+                  ? 'max-h-[calc(98vh-240px)]'
+                  : 'max-h-[calc(92vh-320px)]'
             }`}>
               <TabsContent value="general" className="space-y-4 mt-0">
                 <JobBasicsTab
